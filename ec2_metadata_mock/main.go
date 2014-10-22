@@ -5,10 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func rawData() (map[string]interface{}, error) {
@@ -86,7 +89,15 @@ func main() {
 
 	sort.Strings(urls)
 
+	router := mux.NewRouter()
+
 	for _, k := range urls {
-		fmt.Printf("%s ---> %s\n", k, uData[k])
+		url := k
+		data := uData[url]
+		router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, data)
+		}).Methods("GET")
 	}
+
+	http.ListenAndServe(":8080", router)
 }
