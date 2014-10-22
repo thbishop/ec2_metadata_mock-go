@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestParsedData(t *testing.T) {
+func TestUrlData(t *testing.T) {
 	input := map[string]interface{}{
 		"user-data": "foo",
 		"meta-data": map[string]interface{}{
@@ -31,7 +31,7 @@ func TestParsedData(t *testing.T) {
 		"/meta-data/hostname/":                        "foo-bar",
 	}
 
-	results := parsedData("/", input)
+	results := urlData("/", input)
 
 	var expectedKeys, resultsKeys []string
 

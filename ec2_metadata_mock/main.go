@@ -1,12 +1,35 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
 )
 
-func parsedData(parent string, data map[string]interface{}) map[string]string {
+func rawData() (map[string]interface{}, error) {
+	file := "./example_metadata.json"
+	raw, err := ioutil.ReadFile(file)
+	if err != nil {
+		msg := fmt.Sprintf("Unable to read '%s'. %s", file, err.Error())
+		return map[string]interface{}{}, errors.New(msg)
+	}
+
+	var jsonData interface{}
+	err = json.Unmarshal(raw, &jsonData)
+	if err != nil {
+		msg := fmt.Sprintf("Unable to parse JSON. %s", err.Error)
+		return map[string]interface{}{}, errors.New(msg)
+	}
+
+	return jsonData.(map[string]interface{}), nil
+}
+
+func urlData(parent string, data map[string]interface{}) map[string]string {
 	results := map[string]string{}
 
 	for k, v := range data {
@@ -34,7 +57,7 @@ func parsedData(parent string, data map[string]interface{}) map[string]string {
 			sort.Strings(mapKeysOutput)
 			results[parent+k+"/"] = strings.Join(mapKeysOutput, "\n")
 
-			result := parsedData(parent+k+"/", val.Interface().(map[string]interface{}))
+			result := urlData(parent+k+"/", val.Interface().(map[string]interface{}))
 
 			for resultKey, resultVal := range result {
 				results[resultKey] = resultVal
@@ -46,4 +69,24 @@ func parsedData(parent string, data map[string]interface{}) map[string]string {
 }
 
 func main() {
+
+	data, err := rawData()
+	if err != nil {
+		fmt.Printf("Unable to load raw data. Error: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	uData := urlData("/", data)
+
+	urls := []string{}
+
+	for k, _ := range uData {
+		urls = append(urls, k)
+	}
+
+	sort.Strings(urls)
+
+	for _, k := range urls {
+		fmt.Printf("%s ---> %s\n", k, uData[k])
+	}
 }
