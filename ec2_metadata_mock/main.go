@@ -21,9 +21,9 @@ func parsedData(parent string, data map[string]interface{}) map[string]string {
 
 		case reflect.Map:
 			mapKeysOutput := []string{}
-			for subKey, valVal := range val.Interface().(map[string]interface{}) {
-				valVal := reflect.Indirect(reflect.ValueOf(valVal))
-				switch valVal.Kind() {
+			for subKey, subVal := range val.Interface().(map[string]interface{}) {
+				subVal := reflect.Indirect(reflect.ValueOf(subVal))
+				switch subVal.Kind() {
 				case reflect.Map:
 					mapKeysOutput = append(mapKeysOutput, subKey+"/")
 				case reflect.String:
@@ -36,8 +36,8 @@ func parsedData(parent string, data map[string]interface{}) map[string]string {
 
 			result := parsedData(parent+k+"/", val.Interface().(map[string]interface{}))
 
-			for y, z := range result {
-				results[y] = z
+			for resultKey, resultVal := range result {
+				results[resultKey] = resultVal
 			}
 		}
 	}
