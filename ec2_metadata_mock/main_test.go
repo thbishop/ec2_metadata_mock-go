@@ -1,10 +1,49 @@
 package main
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"sort"
 	"testing"
 )
+
+func TestSetupRouter(t *testing.T) {
+	input := map[string]string{
+		"/":                                           "meta-data\nuser-data\n",
+		"/user-data/":                                 "foo",
+		"/meta-data/":                                 "ami-id\nblock-device-mapping/\nhostname",
+		"/meta-data/ami-id/":                          "ami-12345678",
+		"/meta-data/block-device-mapping/":            "ephemeral0\nephemeral1\nroot",
+		"/meta-data/block-device-mapping/ephemeral0/": "sdb",
+		"/meta-data/block-device-mapping/ephemeral1/": "sdg",
+		"/meta-data/block-device-mapping/root/":       "/dev/sda1",
+		"/meta-data/hostname/":                        "foo-bar",
+	}
+
+	router := setupRouter(input)
+
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	for k, _ := range input {
+		res, err := http.Get(ts.URL + k)
+		if err != nil {
+			t.Fatalf("Error on GET to '%s': %s", k, err.Error())
+		}
+		body, err := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		if err != nil {
+			t.Fatalf("Error reading body from '%s': %s", k, err.Error())
+		}
+
+		if !reflect.DeepEqual(string(body), input[k]) {
+			t.Fatalf("Error with body from '%s'.\nExpected\n'%s'\nGot\n'%s'", k, input[k], string(body))
+		}
+	}
+
+}
 
 func TestUrlData(t *testing.T) {
 	input := map[string]interface{}{

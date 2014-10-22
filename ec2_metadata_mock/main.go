@@ -82,6 +82,28 @@ func urlData(parent string, data map[string]interface{}) map[string]string {
 	return results
 }
 
+func setupRouter(urlData map[string]string) http.Handler {
+	urls := []string{}
+
+	for k, _ := range urlData {
+		urls = append(urls, k)
+	}
+
+	sort.Strings(urls)
+
+	router := mux.NewRouter()
+
+	for _, k := range urls {
+		url := k
+		data := urlData[url]
+		router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, data)
+		}).Methods("GET")
+	}
+
+	return router
+}
+
 func main() {
 
 	data, err := rawData()
@@ -92,23 +114,5 @@ func main() {
 
 	uData := urlData("/", data)
 
-	urls := []string{}
-
-	for k, _ := range uData {
-		urls = append(urls, k)
-	}
-
-	sort.Strings(urls)
-
-	router := mux.NewRouter()
-
-	for _, k := range urls {
-		url := k
-		data := uData[url]
-		router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprint(w, data)
-		}).Methods("GET")
-	}
-
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(":8080", setupRouter(uData))
 }
