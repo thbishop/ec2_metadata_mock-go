@@ -35,6 +35,17 @@ func rawData() (map[string]interface{}, error) {
 func urlData(parent string, data map[string]interface{}) map[string]string {
 	results := map[string]string{}
 
+	if parent == "/" {
+		keys := []string{}
+
+		for k, _ := range data {
+			keys = append(keys, k)
+		}
+
+		sort.Strings(keys)
+		results[parent] = strings.Join(keys, "\n") + "\n"
+	}
+
 	for k, v := range data {
 		val := reflect.Indirect(reflect.ValueOf(v))
 		if val.Kind() == reflect.Interface {

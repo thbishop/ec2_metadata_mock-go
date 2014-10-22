@@ -21,6 +21,7 @@ func TestUrlData(t *testing.T) {
 	}
 
 	expected := map[string]string{
+		"/":                                           "meta-data\nuser-data\n",
 		"/user-data/":                                 "foo",
 		"/meta-data/":                                 "ami-id\nblock-device-mapping/\nhostname",
 		"/meta-data/ami-id/":                          "ami-12345678",
