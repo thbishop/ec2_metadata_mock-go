@@ -32,3 +32,5 @@ pkg
 pkg/*
 
 .*.env
+
+*.test
