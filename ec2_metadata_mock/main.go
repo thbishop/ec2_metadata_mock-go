@@ -14,11 +14,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func rawData() (map[string]interface{}, error) {
-	file := "./example_metadata.json"
-	raw, err := ioutil.ReadFile(file)
+func rawData(c *config) (map[string]interface{}, error) {
+	f := c.File
+	raw, err := ioutil.ReadFile(f)
 	if err != nil {
-		msg := fmt.Sprintf("Unable to read '%s'. %s", file, err.Error())
+		msg := fmt.Sprintf("Unable to read '%s'. %s", f, err.Error())
 		return map[string]interface{}{}, errors.New(msg)
 	}
 
@@ -106,7 +106,9 @@ func setupRouter(urlData map[string]string) http.Handler {
 
 func main() {
 
-	data, err := rawData()
+	config := parseCliArgs()
+
+	data, err := rawData(config)
 	if err != nil {
 		fmt.Printf("Unable to load raw data. Error: %s\n", err.Error())
 		os.Exit(1)
@@ -114,5 +116,7 @@ func main() {
 
 	uData := urlData("/", data)
 
-	http.ListenAndServe(":8080", setupRouter(uData))
+	bindInfo := config.Address + ":" + config.Port
+	os.Stdout.Write([]byte("Listening on " + bindInfo + "\n"))
+	http.ListenAndServe(config.Address+":"+config.Port, setupRouter(uData))
 }
