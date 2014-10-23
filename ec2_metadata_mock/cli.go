@@ -8,26 +8,10 @@ import (
 )
 
 type config struct {
-	Address string `short:"a" long:"address" description:"Address to bind to. Default is 127.0.0.1"`
-	File    string `short:"f" long:"file" description:"File to serve (json format). Default is 'metadata.json'"`
-	Port    string `short:"p" long:"port" description:"Port to bind to. Default is 8080"`
+	Address string `short:"a" long:"address" description:"Address to bind to" default:"127.0.0.1" value-name:"ADDRESS"`
+	File    string `short:"f" long:"file" description:"File to serve (json format)" default:"metadata.json" value-name:"PATH_TO_FILE"`
+	Port    string `short:"p" long:"port" description:"Port to bind to" default:"8080" value-name:"PORT"`
 	Version func() `short:"v" long:"version" description:"Display the version"`
-}
-
-func setDefaults(c *config) *config {
-	if c.Address == "" {
-		c.Address = "127.0.0.1"
-	}
-
-	if c.File == "" {
-		c.File = "./metadata.json"
-	}
-
-	if c.Port == "" {
-		c.Port = "8080"
-	}
-
-	return c
 }
 
 func parseCliArgs() *config {
@@ -57,5 +41,5 @@ func parseCliArgs() *config {
 		os.Exit(1)
 	}
 
-	return setDefaults(c)
+	return c
 }

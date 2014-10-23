@@ -114,9 +114,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	uData := urlData("/", data)
-
 	bindInfo := config.Address + ":" + config.Port
 	os.Stdout.Write([]byte("Listening on " + bindInfo + "\n"))
-	http.ListenAndServe(config.Address+":"+config.Port, setupRouter(uData))
+	err = http.ListenAndServe(config.Address + ":" + config.Port, setupRouter(urlData("/", data)))
+	if err != nil {
+		fmt.Printf("Unable to serve data. Error: %s", err.Error())
+	}
 }
